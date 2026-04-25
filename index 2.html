@@ -1,0 +1,809 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>LocalLead AI</title>
+  <meta name="theme-color" content="#0f4fe8" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="LocalLead AI" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+  <link rel="manifest" href="manifest.json" />
+  <style>
+    :root{
+      --bg:#f4f7fb;
+      --bg2:#eaf1ff;
+      --card:#ffffff;
+      --card2:rgba(255,255,255,.72);
+      --ink:#101828;
+      --muted:#5e6b7d;
+      --soft:#eef4ff;
+      --line:#d9e2f1;
+      --brand:#0f4fe8;
+      --brand2:#00a6d6;
+      --brand3:#6c47ff;
+      --good:#067647;
+      --good-bg:#ecfdf3;
+      --warn:#b54708;
+      --warn-bg:#fffaeb;
+      --bad:#b42318;
+      --bad-bg:#fef3f2;
+      --shadow:0 18px 48px rgba(16,24,40,.10);
+      --shadow2:0 8px 22px rgba(16,24,40,.07);
+      --radius:24px;
+      --focus:0 0 0 4px rgba(15,79,232,.18);
+      color-scheme:light;
+    }
+    [data-theme="dark"]{
+      --bg:#0b1220;
+      --bg2:#111b2f;
+      --card:#121b2d;
+      --card2:rgba(18,27,45,.78);
+      --ink:#f8fafc;
+      --muted:#b7c2d6;
+      --soft:#182641;
+      --line:#273650;
+      --brand:#6ea8ff;
+      --brand2:#39d4ff;
+      --brand3:#a893ff;
+      --good:#75e0a7;
+      --good-bg:#073c28;
+      --warn:#ffd166;
+      --warn-bg:#3a2a04;
+      --bad:#ff9b92;
+      --bad-bg:#3a1110;
+      --shadow:0 18px 48px rgba(0,0,0,.34);
+      --shadow2:0 8px 22px rgba(0,0,0,.28);
+      color-scheme:dark;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation:none!important;transition:none!important}}
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text",Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+      color:var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(15,79,232,.20), transparent 34rem),
+        radial-gradient(circle at top right, rgba(0,166,214,.18), transparent 32rem),
+        linear-gradient(180deg,var(--bg2) 0%,var(--bg) 260px);
+      -webkit-font-smoothing:antialiased;
+      padding-bottom:calc(94px + env(safe-area-inset-bottom));
+    }
+    a,button,input,select,textarea{font:inherit}
+    button,.btn{
+      appearance:none;
+      min-height:46px;
+      border:0;
+      background:linear-gradient(135deg,var(--brand),var(--brand2));
+      color:white;
+      padding:12px 15px;
+      border-radius:16px;
+      font-weight:850;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      text-decoration:none;
+      box-shadow:0 12px 22px rgba(15,79,232,.18);
+    }
+    button:hover,.btn:hover{filter:saturate(1.08)}
+    button:active,.btn:active{transform:translateY(1px)}
+    button:focus-visible,.btn:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;box-shadow:var(--focus)}
+    .secondary{background:var(--soft)!important;color:var(--brand)!important;box-shadow:none!important}
+    .ghost{background:transparent!important;color:var(--ink)!important;border:1px solid var(--line)!important;box-shadow:none!important}
+    .danger{background:var(--bad-bg)!important;color:var(--bad)!important;box-shadow:none!important}
+    .success{background:var(--good-bg)!important;color:var(--good)!important;box-shadow:none!important}
+    .full{width:100%}
+    .tiny{min-height:36px;padding:8px 10px;border-radius:12px;font-size:12px}
+    .app{max-width:540px;margin:0 auto;min-height:100vh;position:relative}
+    header{
+      padding:calc(16px + env(safe-area-inset-top)) 16px 12px;
+      position:sticky;top:0;z-index:20;
+      background:rgba(244,247,251,.72);
+      backdrop-filter:saturate(180%) blur(18px);
+      border-bottom:1px solid color-mix(in srgb,var(--line),transparent 30%);
+    }
+    [data-theme="dark"] header{background:rgba(11,18,32,.72)}
+    .topline{display:flex;align-items:center;gap:12px}
+    .logo{
+      width:44px;height:44px;border-radius:16px;
+      background:linear-gradient(145deg,var(--brand),var(--brand2));
+      display:grid;place-items:center;color:white;font-weight:950;
+      box-shadow:0 12px 26px rgba(15,79,232,.27);
+      letter-spacing:-.5px;
+    }
+    h1{font-size:24px;line-height:1.05;margin:0;letter-spacing:-.8px}
+    .subtitle{font-size:13px;color:var(--muted);margin-top:4px}
+    main{padding:16px 16px 26px}
+    .screen{display:none}.screen.active{display:block}
+    .row{display:flex;align-items:center;gap:12px}.grow{flex:1}.between{justify-content:space-between}.wrap{flex-wrap:wrap}
+    .muted{color:var(--muted)}.small{font-size:12px}.medium{font-size:14px}.strong{font-weight:850}
+    .skip-link{
+      position:absolute;left:14px;top:-60px;background:var(--ink);color:var(--bg);
+      padding:10px 12px;border-radius:12px;z-index:100;
+    }
+    .skip-link:focus{top:14px}
+    .hero{
+      position:relative;overflow:hidden;
+      padding:20px;border-radius:30px;
+      background:
+        linear-gradient(135deg,rgba(15,79,232,.16),rgba(0,166,214,.10)),
+        var(--card2);
+      border:1px solid color-mix(in srgb,var(--brand),transparent 84%);
+      box-shadow:var(--shadow);
+    }
+    .hero::after{
+      content:"";position:absolute;right:-40px;top:-48px;width:150px;height:150px;border-radius:50%;
+      background:linear-gradient(135deg,rgba(0,166,214,.30),rgba(108,71,255,.22));
+      filter:blur(2px);
+    }
+    .hero h2{margin:0 0 8px;font-size:27px;line-height:1.05;letter-spacing:-.9px;position:relative;z-index:1}
+    .hero p{margin:0;color:var(--muted);line-height:1.48;position:relative;z-index:1}
+    .quick{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;position:relative;z-index:1}
+    .chip{
+      border:1px solid var(--line);background:var(--card2);
+      padding:8px 10px;border-radius:999px;font-size:12px;font-weight:800;color:var(--muted);
+      display:inline-flex;align-items:center;gap:6px;
+    }
+    .section-title{font-size:18px;margin:24px 2px 10px;letter-spacing:-.25px}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
+    .metric,.card{
+      background:var(--card2);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow2);
+    }
+    .metric{padding:15px}
+    .metric b{display:block;font-size:29px;margin:7px 0 2px;letter-spacing:-.8px}
+    .metric span{font-size:12px;color:var(--muted)}
+    .card{padding:15px;margin-bottom:10px}
+    .insight-card{
+      background:
+        linear-gradient(135deg,rgba(108,71,255,.13),rgba(0,166,214,.10)),
+        var(--card2);
+    }
+    .avatar{
+      width:46px;height:46px;border-radius:17px;background:var(--soft);
+      display:grid;place-items:center;color:var(--brand);font-weight:950;
+      flex:0 0 auto;
+    }
+    .lead-card{cursor:pointer;transition:transform .15s ease, box-shadow .15s ease}
+    .lead-card:hover{transform:translateY(-1px);box-shadow:var(--shadow)}
+    .status{
+      font-size:11px;font-weight:900;padding:7px 9px;border-radius:999px;white-space:nowrap;
+      border:1px solid transparent;
+    }
+    .s-新查詢{background:var(--soft);color:var(--brand)}
+    .s-已回覆{background:#f4f3ff;color:#6941c6}
+    .s-已約試堂\/預約{background:var(--warn-bg);color:var(--warn)}
+    .s-已出席{background:#ecfeff;color:#0e7490}
+    .s-已報名\/成交{background:var(--good-bg);color:var(--good)}
+    .s-未回覆{background:var(--bad-bg);color:var(--bad)}
+    .s-放棄{background:var(--soft);color:var(--muted)}
+    .toolbar{display:flex;gap:10px;margin:8px 0 12px}.toolbar input{flex:1}
+    input,select,textarea{
+      width:100%;
+      border:1px solid var(--line);
+      background:var(--card);
+      color:var(--ink);
+      padding:13px 12px;
+      border-radius:16px;
+      outline:none;
+      min-height:46px;
+    }
+    textarea{min-height:102px;resize:vertical}
+    label{font-size:12px;font-weight:900;color:var(--muted);display:block;margin:12px 0 6px}
+    .form-grid{display:grid;gap:4px}
+    .actions{display:flex;gap:8px;flex-wrap:wrap}
+    .bottom-nav{
+      position:fixed;left:50%;bottom:0;transform:translateX(-50%);
+      width:100%;max-width:540px;
+      padding:10px 10px calc(10px + env(safe-area-inset-bottom));
+      background:rgba(255,255,255,.92);backdrop-filter:blur(22px);
+      border-top:1px solid var(--line);
+      display:grid;grid-template-columns:repeat(5,1fr);gap:5px;z-index:30;
+    }
+    [data-theme="dark"] .bottom-nav{background:rgba(18,27,45,.92)}
+    .navbtn{
+      background:transparent!important;color:var(--muted)!important;box-shadow:none!important;
+      border-radius:18px;padding:9px 3px;display:grid;gap:3px;font-size:10px;min-height:58px;
+    }
+    .navbtn b{font-size:20px;line-height:1}
+    .navbtn.active{background:var(--soft)!important;color:var(--brand)!important}
+    .modal{position:fixed;inset:0;background:rgba(16,24,40,.48);display:none;align-items:flex-end;z-index:80}
+    .modal.active{display:flex}
+    .sheet{
+      background:var(--bg);width:100%;max-width:540px;margin:0 auto;
+      border-radius:30px 30px 0 0;padding:16px;max-height:88vh;overflow:auto;
+      box-shadow:0 -22px 70px rgba(0,0,0,.28);
+    }
+    .sheet-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+    .empty{text-align:center;color:var(--muted);padding:25px;border:1px dashed var(--line);border-radius:22px;background:var(--card2)}
+    .bar{height:11px;background:var(--soft);border-radius:999px;overflow:hidden;margin-top:8px}
+    .bar > i{display:block;height:100%;background:linear-gradient(90deg,var(--brand),var(--brand2));border-radius:999px}
+    .up{color:var(--good);font-weight:950}.down{color:var(--bad);font-weight:950}.flat{color:var(--warn);font-weight:950}
+    .mini-table{width:100%;border-collapse:collapse;font-size:13px}
+    .mini-table td{padding:10px 0;border-bottom:1px solid var(--line)}
+    .mini-table td:last-child{text-align:right;font-weight:850}
+    .kpi-row{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center}
+    .report{white-space:pre-wrap;line-height:1.55}
+    .install,.notice{
+      font-size:13px;line-height:1.45;color:var(--muted);
+      background:var(--warn-bg);border:1px solid color-mix(in srgb,var(--warn),transparent 70%);
+      border-radius:18px;padding:12px;margin-top:10px;
+    }
+    .notice strong{color:var(--ink)}
+    .login-wrap{
+      min-height:100vh;
+      display:grid;place-items:center;
+      padding:calc(26px + env(safe-area-inset-top)) 18px calc(26px + env(safe-area-inset-bottom));
+    }
+    .login-card{
+      width:100%;max-width:450px;border:1px solid var(--line);background:var(--card2);
+      border-radius:32px;padding:22px;box-shadow:var(--shadow);
+    }
+    .login-logo{
+      width:62px;height:62px;border-radius:22px;background:linear-gradient(145deg,var(--brand),var(--brand2));
+      color:white;display:grid;place-items:center;font-size:22px;font-weight:950;margin-bottom:16px;
+    }
+    .pin-dots{display:flex;gap:8px;justify-content:center;margin:12px 0}
+    .pin-dots span{width:10px;height:10px;border-radius:50%;background:var(--line)}
+    .pin-dots span.on{background:var(--brand)}
+    .locked .app{display:none}
+    body:not(.locked) #loginScreen{display:none}
+    .toast{
+      position:fixed;left:50%;bottom:calc(105px + env(safe-area-inset-bottom));transform:translateX(-50%);
+      background:var(--ink);color:var(--bg);padding:11px 13px;border-radius:999px;font-weight:850;font-size:13px;
+      box-shadow:var(--shadow);z-index:120;display:none;max-width:92%;text-align:center;
+    }
+    .toast.show{display:block}
+    .sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+    .textarea-mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px;min-height:170px}
+    @media (max-width:360px){.grid,.quick{grid-template-columns:1fr}.hero h2{font-size:24px}}
+    @media (min-width:780px){
+      body{padding-bottom:24px}
+      .bottom-nav{position:sticky;bottom:12px;transform:none;left:auto;margin:0 auto;border-radius:26px;border:1px solid var(--line);box-shadow:var(--shadow)}
+      .app{padding-bottom:22px}
+    }
+  </style>
+</head>
+
+<body class="locked">
+<a class="skip-link" href="#mainContent">Skip to main content</a>
+
+<section id="loginScreen" class="login-wrap" aria-label="Login">
+  <div class="login-card">
+    <div class="login-logo" aria-hidden="true">LL</div>
+    <h1 id="loginTitle">LocalLead AI</h1>
+    <p class="muted">Business CRM · AI follow-up · monthly analysis</p>
+    <div id="loginBody"></div>
+  </div>
+</section>
+
+<div class="app" aria-live="polite">
+  <header>
+    <div class="topline">
+      <div class="logo" aria-hidden="true">LL</div>
+      <div class="grow">
+        <h1>LocalLead AI</h1>
+        <div class="subtitle" id="headerSub">Business CRM · Local login enabled</div>
+      </div>
+      <button class="secondary" onclick="openLeadForm()" aria-label="Add new lead">＋</button>
+    </div>
+  </header>
+
+  <main id="mainContent">
+    <section id="dashboard" class="screen active" aria-label="Dashboard"></section>
+    <section id="leads" class="screen" aria-label="Leads"></section>
+    <section id="templates" class="screen" aria-label="Message templates"></section>
+    <section id="report" class="screen" aria-label="Business analysis"></section>
+    <section id="settings" class="screen" aria-label="Settings"></section>
+  </main>
+
+  <nav class="bottom-nav" aria-label="Main navigation">
+    <button class="navbtn active" data-tab="dashboard" aria-label="Dashboard"><b aria-hidden="true">▣</b>Home</button>
+    <button class="navbtn" data-tab="leads" aria-label="Leads"><b aria-hidden="true">☷</b>Leads</button>
+    <button class="navbtn" data-tab="templates" aria-label="Message templates"><b aria-hidden="true">✉</b>Scripts</button>
+    <button class="navbtn" data-tab="report" aria-label="Business analysis"><b aria-hidden="true">▤</b>Analysis</button>
+    <button class="navbtn" data-tab="settings" aria-label="Settings"><b aria-hidden="true">⚙</b>Settings</button>
+  </nav>
+</div>
+
+<div id="modal" class="modal" onclick="closeModalIfBackdrop(event)" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="sheet">
+    <div class="sheet-head">
+      <h2 id="modalTitle" style="margin:0">新增 Lead</h2>
+      <button class="ghost" onclick="closeModal()">關閉</button>
+    </div>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<div id="toast" class="toast" role="status"></div>
+
+<script>
+const APP_VERSION = '3.0-accessible-login';
+const STORAGE_KEY = 'localleadai.pwa.leads.v3';
+const OLD_STORAGE_KEY = 'localleadai.pwa.leads.v1';
+const SETTINGS_KEY = 'localleadai.pwa.settings.v3';
+const BENCHMARK_KEY = 'localleadai.pwa.benchmarks.v3';
+const AUTH_KEY = 'localleadai.pwa.auth.v3';
+const SESSION_KEY = 'localleadai.pwa.session.v3';
+const STAFF_KEY = 'localleadai.pwa.staff.v3';
+
+const STATUS = ['新查詢','已回覆','已約試堂/預約','已出席','已報名/成交','未回覆','放棄'];
+const SOURCES = ['WhatsApp','Instagram','Facebook','Website/Form','Referral','Walk-in'];
+const CATEGORIES = ['補習社 / Education','美容 / Nail / Salon','健身 / Wellness','車房 / Auto Service','餐飲 / F&B','寵物服務','地產 / Property','其他 Local Service'];
+const DEFAULT_BENCHMARKS = {
+ '補習社 / Education':{conversion:18,responseHours:2.5,avgLeadValue:1800,followUpRate:82,monthlyLeadGrowth:6},
+ '美容 / Nail / Salon':{conversion:22,responseHours:1.5,avgLeadValue:680,followUpRate:78,monthlyLeadGrowth:5},
+ '健身 / Wellness':{conversion:15,responseHours:3,avgLeadValue:1200,followUpRate:74,monthlyLeadGrowth:4},
+ '車房 / Auto Service':{conversion:20,responseHours:2,avgLeadValue:1500,followUpRate:70,monthlyLeadGrowth:3},
+ '餐飲 / F&B':{conversion:10,responseHours:4,avgLeadValue:450,followUpRate:62,monthlyLeadGrowth:2},
+ '寵物服務':{conversion:19,responseHours:2,avgLeadValue:900,followUpRate:76,monthlyLeadGrowth:5},
+ '地產 / Property':{conversion:7,responseHours:1,avgLeadValue:8000,followUpRate:88,monthlyLeadGrowth:4},
+ '其他 Local Service':{conversion:16,responseHours:2.5,avgLeadValue:1200,followUpRate:72,monthlyLeadGrowth:4}
+};
+const TEMPLATES = [
+ {title:'新查詢快速回覆',cat:'All',body:'你好，多謝查詢 😊 想幫你安排最合適嘅服務，麻煩你提供需要嘅項目、理想時間同預算，我哋會盡快回覆。'},
+ {title:'24 小時跟進',cat:'All',body:'你好，想跟進返你之前嘅查詢。我哋仲有少量時段 / 名額，可以幫你預留。你想今日定聽日確認比較方便？'},
+ {title:'補習試堂前提醒',cat:'Education',body:'提提你，明日有試堂安排，到時見 😊 地址係：[地址]。如需要改時間，可以提前 WhatsApp 我哋。'},
+ {title:'試堂後報名跟進',cat:'Education',body:'多謝今日嚟試堂。老師初步建議可以先集中改善 [重點]。如果想報名，我哋可以幫你安排下星期開始上堂。'},
+ {title:'美容問價回覆',cat:'Beauty',body:'你好，可以呀。想幫你報準啲價，可以 send 你想做嘅款式 / 服務同想約日期時間俾我哋，我哋會盡快回覆可預約時段。'},
+ {title:'車房報價資料收集',cat:'Auto',body:'你好，可以幫你報價。麻煩你 send 車款、年份、需要處理嘅問題相片 / 輪呔尺寸，同埋想今日定預約其他日子。'}
+];
+
+let active = 'dashboard';
+let query = '';
+let filter = '全部';
+let leads = loadLeads();
+let settings = loadSettings();
+let benchmarks = loadBenchmarks();
+let staff = loadStaff();
+
+function uid(){ return crypto.randomUUID ? crypto.randomUUID() : String(Date.now()+Math.random()); }
+function addDays(n){ const d=new Date(); d.setDate(d.getDate()+n); return d.toISOString().slice(0,16); }
+function esc(s=''){return String(s).replace(/[&<>"']/g,m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;' }[m]));}
+function todayStart(){ const d=new Date(); d.setHours(0,0,0,0); return d; }
+function tomorrowStart(){ const d=todayStart(); d.setDate(d.getDate()+1); return d; }
+function fmt(dt){ return new Date(dt).toLocaleString('zh-HK',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}); }
+function monthNow(){ return new Date().toISOString().slice(0,7); }
+function showToast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2200); }
+function copyText(t){ navigator.clipboard?.writeText(t).then(()=>showToast('Copied')).catch(()=>showToast('Please copy manually')); }
+
+function seed(){
+ return [
+  {id:uid(),createdAt:new Date().toISOString(),name:'陳太',phone:'91234567',source:'WhatsApp',interest:'中二英文試堂',levelOrType:'中二',preferredTime:'星期六下午',status:'新查詢',nextFollowUp:addDays(0),assignedTo:'Owner',valueHKD:1800,notes:'想改善 writing'},
+  {id:uid(),createdAt:new Date().toISOString(),name:'李先生',phone:'98761234',source:'Instagram',interest:'小五數學',levelOrType:'小五',preferredTime:'平日 6pm',status:'已約試堂/預約',nextFollowUp:addDays(1),assignedTo:'Admin',valueHKD:1600,notes:'已約本週六試堂'},
+  {id:uid(),createdAt:new Date().toISOString(),name:'王小姐',phone:'69998888',source:'Facebook',interest:'DSE Econ',levelOrType:'中五',preferredTime:'週末',status:'已回覆',nextFollowUp:addDays(-1),assignedTo:'Sales',valueHKD:2400,notes:'等家長確認時間'}
+ ];
+}
+function loadLeads(){
+ try{
+   const modern = JSON.parse(localStorage.getItem(STORAGE_KEY));
+   if(Array.isArray(modern)) return modern;
+   const old = JSON.parse(localStorage.getItem(OLD_STORAGE_KEY));
+   if(Array.isArray(old)){ localStorage.setItem(STORAGE_KEY, JSON.stringify(old)); return old; }
+ }catch(e){}
+ return seed();
+}
+function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(leads)); render(); }
+function loadSettings(){
+ try{return {...{category:'補習社 / Education',month:monthNow(),theme:'light',businessName:'LocalLead AI Demo',ownerName:'Owner'}, ...(JSON.parse(localStorage.getItem(SETTINGS_KEY))||{})}}
+ catch(e){return {category:'補習社 / Education',month:monthNow(),theme:'light',businessName:'LocalLead AI Demo',ownerName:'Owner'}}
+}
+function saveSettingsObj(s){ settings=s; localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); applyTheme(); render(); }
+function loadBenchmarks(){ try{return JSON.parse(localStorage.getItem(BENCHMARK_KEY))||DEFAULT_BENCHMARKS}catch(e){return DEFAULT_BENCHMARKS}}
+function saveBenchmarksObj(b){ benchmarks=b; localStorage.setItem(BENCHMARK_KEY, JSON.stringify(benchmarks)); render(); }
+function loadStaff(){ try{return JSON.parse(localStorage.getItem(STAFF_KEY))||['Owner','Admin','Sales']}catch(e){return ['Owner','Admin','Sales']}}
+function saveStaff(){ localStorage.setItem(STAFF_KEY, JSON.stringify(staff)); render(); }
+function applyTheme(){ document.documentElement.dataset.theme=settings.theme||'light'; }
+applyTheme();
+
+async function sha256(message){
+ const msgBuffer = new TextEncoder().encode(message);
+ const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+ return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+function getAuth(){ try{return JSON.parse(localStorage.getItem(AUTH_KEY))}catch(e){return null} }
+function loggedIn(){ return sessionStorage.getItem(SESSION_KEY)==='yes' || !getAuth()?.enabled; }
+function renderLogin(){
+ const auth = getAuth();
+ const body = document.getElementById('loginBody');
+ if(!auth){
+   body.innerHTML = `
+    <div class="notice"><strong>Create a local login.</strong><br>This protects the app on this iPhone/browser only. For real staff accounts across devices, use Firebase/Supabase later.</div>
+    <label for="setupName">Business name</label>
+    <input id="setupName" autocomplete="organization" value="${esc(settings.businessName||'')}" placeholder="e.g. ABC Education Centre">
+    <label for="setupPin">Create 4-8 digit PIN</label>
+    <input id="setupPin" inputmode="numeric" autocomplete="new-password" type="password" maxlength="8" placeholder="e.g. 2468">
+    <label for="setupPin2">Confirm PIN</label>
+    <input id="setupPin2" inputmode="numeric" autocomplete="new-password" type="password" maxlength="8" placeholder="Repeat PIN">
+    <button class="full" style="margin-top:14px" onclick="setupLogin()">Create login</button>
+    <button class="ghost full" style="margin-top:8px" onclick="skipLogin()">Skip for now</button>`;
+ }else if(auth.enabled){
+   body.innerHTML = `
+    <div class="notice"><strong>${esc(settings.businessName || 'Your business')}</strong><br>Enter your PIN to unlock the CRM.</div>
+    <label for="loginPin">PIN</label>
+    <input id="loginPin" inputmode="numeric" autocomplete="current-password" type="password" maxlength="8" placeholder="Enter PIN" onkeydown="if(event.key==='Enter') login()">
+    <div class="pin-dots" aria-hidden="true" id="pinDots">${'<span></span>'.repeat(4)}</div>
+    <button class="full" onclick="login()">Unlock</button>
+    <button class="ghost full" style="margin-top:8px" onclick="forgotPin()">Forgot PIN?</button>`;
+   const inp = document.getElementById('loginPin');
+   setTimeout(()=>inp?.focus(),150);
+   inp?.addEventListener('input',()=> {
+     document.querySelectorAll('#pinDots span').forEach((s,i)=>s.classList.toggle('on', i < inp.value.length));
+   });
+ }else{
+   unlockApp();
+ }
+}
+async function setupLogin(){
+ const name = document.getElementById('setupName').value.trim() || 'LocalLead AI';
+ const pin = document.getElementById('setupPin').value.trim();
+ const pin2 = document.getElementById('setupPin2').value.trim();
+ if(!/^\d{4,8}$/.test(pin)) return showToast('PIN must be 4-8 digits');
+ if(pin!==pin2) return showToast('PIN does not match');
+ const hash = await sha256(pin);
+ localStorage.setItem(AUTH_KEY, JSON.stringify({enabled:true, hash, createdAt:new Date().toISOString()}));
+ saveSettingsObj({...settings,businessName:name});
+ sessionStorage.setItem(SESSION_KEY,'yes');
+ unlockApp();
+}
+function skipLogin(){
+ localStorage.setItem(AUTH_KEY, JSON.stringify({enabled:false, createdAt:new Date().toISOString()}));
+ sessionStorage.setItem(SESSION_KEY,'yes');
+ unlockApp();
+}
+async function login(){
+ const pin = document.getElementById('loginPin')?.value.trim() || '';
+ const auth = getAuth();
+ if(!auth) return renderLogin();
+ const hash = await sha256(pin);
+ if(hash === auth.hash){ sessionStorage.setItem(SESSION_KEY,'yes'); unlockApp(); }
+ else showToast('Wrong PIN');
+}
+function logout(){ sessionStorage.removeItem(SESSION_KEY); document.body.classList.add('locked'); renderLogin(); }
+function unlockApp(){ document.body.classList.remove('locked'); document.getElementById('headerSub').textContent = `${settings.businessName || 'LocalLead AI'} · ${settings.category}`; render(); }
+function forgotPin(){
+ if(confirm('This local demo login cannot recover a forgotten PIN. Reset login only? Your lead data will stay.')){
+   localStorage.removeItem(AUTH_KEY); sessionStorage.removeItem(SESSION_KEY); renderLogin();
+ }
+}
+async function changePin(){
+ const oldPin = prompt('Current PIN');
+ if(oldPin === null) return;
+ const auth = getAuth();
+ if(auth?.enabled && await sha256(oldPin) !== auth.hash) return showToast('Current PIN wrong');
+ const newPin = prompt('New 4-8 digit PIN');
+ if(!/^\d{4,8}$/.test(newPin||'')) return showToast('PIN must be 4-8 digits');
+ localStorage.setItem(AUTH_KEY, JSON.stringify({enabled:true, hash:await sha256(newPin), createdAt:auth?.createdAt||new Date().toISOString(), changedAt:new Date().toISOString()}));
+ showToast('PIN changed');
+}
+function disableLogin(){
+ if(confirm('Disable local PIN login on this device?')){
+   localStorage.setItem(AUTH_KEY, JSON.stringify({enabled:false, createdAt:new Date().toISOString()}));
+   showToast('Login disabled');
+   render();
+ }
+}
+
+function isActiveLead(l){return !['已報名/成交','放棄'].includes(l.status);}
+function todayFollowUps(){ return leads.filter(l=>new Date(l.nextFollowUp)<=tomorrowStart() && isActiveLead(l)).sort((a,b)=>new Date(a.nextFollowUp)-new Date(b.nextFollowUp));}
+function overdue(){ return leads.filter(l=>new Date(l.nextFollowUp)<todayStart() && isActiveLead(l));}
+function won(){ return leads.filter(l=>l.status==='已報名/成交').length;}
+function conversion(){ return leads.length ? Math.round(won()/leads.length*100) : 0;}
+function potentialValue(){ return leads.filter(l=>l.status!=='放棄').reduce((s,l)=>s+(Number(l.valueHKD)||0),0);}
+function badge(status){ return `<span class="status s-${esc(status).replaceAll('/','\\/')}">${esc(status)}</span>`; }
+function healthScore(){
+ let score=70;
+ const due=todayFollowUps().length, late=overdue().length;
+ if(conversion()>18) score+=12; else if(conversion()<8) score-=10;
+ if(late>0) score-=Math.min(20,late*6);
+ if(due>0) score+=5;
+ if(potentialValue()>5000) score+=8;
+ return Math.max(0,Math.min(100,score));
+}
+function leadCard(l){
+ return `<article class="card lead-card" tabindex="0" role="button" aria-label="Open ${esc(l.name)} lead" onclick="viewLead('${l.id}')" onkeydown="if(event.key==='Enter')viewLead('${l.id}')">
+  <div class="row">
+    <div class="avatar" aria-hidden="true">${esc((l.name||'?')[0])}</div>
+    <div class="grow">
+      <div class="row between"><div class="strong">${esc(l.name)}</div>${badge(l.status)}</div>
+      <div class="muted medium">${esc(l.interest)} · ${esc(l.source)}</div>
+      <div class="muted small">跟進：${fmt(l.nextFollowUp)} · HK$${Number(l.valueHKD||0).toLocaleString()} · ${esc(l.assignedTo||'Unassigned')}</div>
+    </div>
+  </div>
+ </article>`;
+}
+function setTab(tab){
+ active=tab;
+ document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active',s.id===tab));
+ document.querySelectorAll('.navbtn').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
+ render();
+}
+document.querySelectorAll('.navbtn').forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.tab)));
+
+function renderDashboard(){
+ const due=todayFollowUps();
+ const hs=healthScore();
+ const nextBest = overdue().length ? '先處理逾期 follow-up' : (due.length ? '今日先覆高價值 leads' : '新增本月 leads 做分析');
+ document.getElementById('dashboard').innerHTML=`
+  <div class="hero">
+    <h2>Turn enquiries into bookings</h2>
+    <p>Accessible CRM for WhatsApp / IG leads, follow-ups, AI scripts and monthly business comparison.</p>
+    <div class="quick">
+      <button onclick="openLeadForm()">＋ Add Lead</button>
+      <button class="secondary" onclick="setTab('report')">View Analysis</button>
+    </div>
+  </div>
+  <div class="grid">
+   <div class="metric"><span>Total leads</span><b>${leads.length}</b><span>All enquiries</span></div>
+   <div class="metric"><span>Due today</span><b>${due.length}</b><span>Need follow-up</span></div>
+   <div class="metric"><span>Won</span><b>${won()}</b><span>Closed deals</span></div>
+   <div class="metric"><span>Conversion</span><b>${conversion()}%</b><span>Lead to won</span></div>
+  </div>
+  <h3 class="section-title">Business Health</h3>
+  <div class="card insight-card">
+    <div class="row between"><div><div class="strong">Score ${hs}/100</div><div class="muted medium">Next best action: ${esc(nextBest)}</div></div><span class="chip">AI insight</span></div>
+    <div class="bar" aria-label="Business health score"><i style="width:${hs}%"></i></div>
+  </div>
+  <h3 class="section-title">Today’s follow-ups</h3>
+  ${due.length?due.slice(0,5).map(leadCard).join(''):'<div class="empty">No follow-ups due today.</div>'}
+  <h3 class="section-title">Potential pipeline</h3>
+  <div class="card"><div class="strong" style="font-size:29px">HK$${potentialValue().toLocaleString()}</div><div class="muted medium">${overdue().length} overdue follow-up(s). Prioritise these before new outreach.</div></div>`;
+}
+function renderLeads(){
+ const filtered=leads.filter(l=>{
+  const q=query.trim().toLowerCase();
+  const hit=!q || [l.name,l.phone,l.interest,l.levelOrType,l.notes,l.source,l.assignedTo].join(' ').toLowerCase().includes(q);
+  const statusHit=filter==='全部'||l.status===filter;
+  return hit && statusHit;
+ });
+ document.getElementById('leads').innerHTML=`
+  <div class="toolbar"><input aria-label="Search leads" placeholder="Search name / phone / service" value="${esc(query)}" oninput="query=this.value;renderLeads()"><button onclick="openLeadForm()">Add</button></div>
+  <label for="statusFilter">Status filter</label>
+  <select id="statusFilter" onchange="filter=this.value;renderLeads()"><option>全部</option>${STATUS.map(s=>`<option ${filter===s?'selected':''}>${s}</option>`).join('')}</select>
+  <h3 class="section-title">${filtered.length} Leads</h3>
+  ${filtered.length?filtered.map(leadCard).join(''):'<div class="empty">No matching leads.</div>'}`;
+}
+function renderTemplates(){
+ document.getElementById('templates').innerHTML=`
+  <h3 class="section-title">AI Message Scripts</h3>
+  <div class="card insight-card"><div class="strong">More human, less robotic</div><div class="muted medium">Use these scripts as a starting point. Edit before sending to WhatsApp / IG.</div></div>
+  ${TEMPLATES.map(t=>`<div class="card"><div class="row between"><div class="strong">${esc(t.title)}</div><span class="chip">${esc(t.cat)}</span></div><p class="muted medium">${esc(t.body)}</p><div class="actions"><button class="secondary" onclick='copyText(${JSON.stringify(t.body)})'>Copy</button><button class="ghost" onclick='openLeadForm(null, ${JSON.stringify(t.body)})'>Use with lead</button></div></div>`).join('')}`;
+}
+function monthKey(dt){return new Date(dt).toISOString().slice(0,7);}
+function monthLeads(m=settings.month){return leads.filter(l=>monthKey(l.createdAt||new Date())===m);}
+function previousMonth(m=settings.month){const [y,mo]=m.split('-').map(Number);const d=new Date(y,mo-2,1);return d.toISOString().slice(0,7);}
+function monthMetrics(m=settings.month){
+ const arr=monthLeads(m);
+ const wonArr=arr.filter(l=>l.status==='已報名/成交');
+ const activeArr=arr.filter(l=>l.status!=='放棄');
+ const conv=arr.length?Math.round(wonArr.length/arr.length*100):0;
+ const avgVal=arr.length?Math.round(activeArr.reduce((s,l)=>s+(Number(l.valueHKD)||0),0)/Math.max(activeArr.length,1)):0;
+ const followRate=arr.length?Math.round(arr.filter(l=>l.nextFollowUp).length/arr.length*100):0;
+ const sourceMap={}; arr.forEach(l=>sourceMap[l.source]=(sourceMap[l.source]||0)+1);
+ const topSource=Object.entries(sourceMap).sort((a,b)=>b[1]-a[1])[0]?.[0]||'No data';
+ return {count:arr.length,won:wonArr.length,conversion:conv,avgLeadValue:avgVal,followUpRate:followRate,topSource,potential:activeArr.reduce((s,l)=>s+(Number(l.valueHKD)||0),0)};
+}
+function arrow(v){return v>0?'▲':v<0?'▼':'—'}
+function compareLine(label, mine, bench, suffix='', higherBetter=true){
+ const diff=Math.round((mine-bench)*10)/10;
+ const good=higherBetter?diff>=0:diff<=0;
+ const cls=diff===0?'flat':good?'up':'down';
+ const width=Math.max(4,Math.min(100, bench?Math.round(mine/bench*100):0));
+ return `<div class="card"><div class="kpi-row"><div><div class="strong">${label}</div><div class="muted small">You: ${mine}${suffix} · category avg: ${bench}${suffix}</div><div class="bar"><i style="width:${width}%"></i></div></div><div class="${cls}">${arrow(diff)} ${Math.abs(diff)}${suffix}</div></div></div>`;
+}
+function businessAdvice(met, bench){
+ const tips=[];
+ if(met.count===0) tips.push('No leads for this month yet. Add or import enquiries first to make the analysis accurate.');
+ if(met.conversion < bench.conversion) tips.push('Conversion is below category average. Shorten response time and follow up replied leads within 24 hours.');
+ else tips.push('Conversion is above category average. Increase activity on your best-performing source.');
+ if(met.followUpRate < bench.followUpRate) tips.push('Follow-up rate is low. Every active lead should have a next follow-up date.');
+ if(met.avgLeadValue < bench.avgLeadValue) tips.push('Average lead value is below category. Try package bundles, deposits, premium options or monthly plans.');
+ if(overdue().length>0) tips.push(`${overdue().length} lead(s) are overdue. Clear these before spending time on cold outreach.`);
+ return tips;
+}
+function sourceBreakdown(arr=monthLeads()){
+ const total=arr.length||1; const map={}; arr.forEach(l=>map[l.source]=(map[l.source]||0)+1);
+ return Object.entries(map).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<tr><td>${esc(k)}</td><td>${v} · ${Math.round(v/total*100)}%</td></tr>`).join('') || '<tr><td>No data</td><td>0</td></tr>';
+}
+function reportText(){
+ const met=monthMetrics(); const prev=monthMetrics(previousMonth()); const bench=benchmarks[settings.category]||benchmarks['其他 Local Service'];
+ const growth=prev.count?Math.round((met.count-prev.count)/prev.count*100):(met.count?100:0);
+ return `LocalLead AI Monthly Business Analysis
+
+Business: ${settings.businessName}
+Month: ${settings.month}
+Category: ${settings.category}
+
+Your data:
+- Leads: ${met.count}
+- Won: ${met.won}
+- Conversion rate: ${met.conversion}%
+- Average lead value: HK$${met.avgLeadValue.toLocaleString()}
+- Follow-up rate: ${met.followUpRate}%
+- Top source: ${met.topSource}
+- Pipeline value: HK$${met.potential.toLocaleString()}
+- Lead growth vs previous month: ${growth}%
+
+Same-category average:
+- Conversion: about ${bench.conversion}%
+- Average lead value: about HK$${bench.avgLeadValue.toLocaleString()}
+- Follow-up rate: about ${bench.followUpRate}%
+- Monthly lead growth: about ${bench.monthlyLeadGrowth}%
+
+Suggestions:
+${businessAdvice(met,bench).map((t,i)=>`${i+1}. ${t}`).join('\n')}`;
+}
+function renderReport(){
+ const met=monthMetrics(); const prev=monthMetrics(previousMonth()); const bench=benchmarks[settings.category]||benchmarks['其他 Local Service'];
+ const growth=prev.count?Math.round((met.count-prev.count)/prev.count*100):(met.count?100:0);
+ const txt=reportText();
+ document.getElementById('report').innerHTML=`
+  <h3 class="section-title">Business Analysis</h3>
+  <div class="card">
+    <label for="analysisMonth">Analysis month</label>
+    <input id="analysisMonth" type="month" value="${esc(settings.month)}" onchange="saveSettingsObj({...settings,month:this.value})">
+    <label for="analysisCat">Same-category shop type</label>
+    <select id="analysisCat" onchange="saveSettingsObj({...settings,category:this.value})">${CATEGORIES.map(c=>`<option ${settings.category===c?'selected':''}>${esc(c)}</option>`).join('')}</select>
+  </div>
+  <div class="grid">
+   <div class="metric"><span>This month</span><b>${met.count}</b><span>${growth>=0?'+'+growth:growth}% vs previous</span></div>
+   <div class="metric"><span>Won</span><b>${met.won}</b><span>Closed</span></div>
+   <div class="metric"><span>Conversion</span><b>${met.conversion}%</b><span>Category ${bench.conversion}%</span></div>
+   <div class="metric"><span>Avg value</span><b style="font-size:22px">HK$${met.avgLeadValue.toLocaleString()}</b><span>Category HK$${bench.avgLeadValue.toLocaleString()}</span></div>
+  </div>
+  <h3 class="section-title">Same-category comparison</h3>
+  ${compareLine('Lead conversion',met.conversion,bench.conversion,'%',true)}
+  ${compareLine('Average lead value',met.avgLeadValue,bench.avgLeadValue,' HKD',true)}
+  ${compareLine('Follow-up rate',met.followUpRate,bench.followUpRate,'%',true)}
+  ${compareLine('Monthly lead growth',growth,bench.monthlyLeadGrowth,'%',true)}
+  <h3 class="section-title">Source breakdown</h3>
+  <div class="card"><table class="mini-table">${sourceBreakdown()}</table></div>
+  <h3 class="section-title">AI suggestions</h3>
+  ${businessAdvice(met,bench).map(t=>`<div class="card insight-card medium">💡 ${esc(t)}</div>`).join('')}
+  <h3 class="section-title">Monthly report</h3>
+  <div class="card report">${esc(txt)}</div>
+  <button class="full" onclick='copyText(${JSON.stringify(txt)})'>Copy report</button>`;
+}
+function renderSettings(){
+ const auth=getAuth();
+ const btxt=JSON.stringify(benchmarks,null,2);
+ document.getElementById('settings').innerHTML=`
+ <h3 class="section-title">Business & Login</h3>
+ <div class="card">
+   <label for="bizName">Business name</label><input id="bizName" value="${esc(settings.businessName||'')}" onchange="saveSettingsObj({...settings,businessName:this.value})">
+   <label for="themeSel">Appearance</label><select id="themeSel" onchange="saveSettingsObj({...settings,theme:this.value})"><option value="light" ${settings.theme==='light'?'selected':''}>Light</option><option value="dark" ${settings.theme==='dark'?'selected':''}>Dark</option></select>
+   <label for="catSel">Business category</label><select id="catSel" onchange="saveSettingsObj({...settings,category:this.value})">${CATEGORIES.map(c=>`<option ${settings.category===c?'selected':''}>${esc(c)}</option>`).join('')}</select>
+ </div>
+ <div class="card">
+   <div class="row between"><div><div class="strong">Local PIN login</div><div class="muted medium">Status: ${auth?.enabled?'Enabled':'Disabled'}</div></div><span class="chip">${auth?.enabled?'Protected':'Open'}</span></div>
+   <div class="notice"><strong>How to manage login:</strong><br>This GitHub Pages version uses local PIN login only. It protects this iPhone/browser, but it is not real cloud authentication. For real multi-device staff accounts, connect Firebase Auth or Supabase later.</div>
+   <div class="actions" style="margin-top:10px"><button onclick="changePin()">Change PIN</button><button class="ghost" onclick="logout()">Lock app</button><button class="danger" onclick="disableLogin()">Disable login</button></div>
+ </div>
+ <h3 class="section-title">Staff</h3>
+ <div class="card">
+   <div class="muted medium">Staff names are local labels for assigning leads. They are not separate cloud accounts.</div>
+   <div class="actions" style="margin-top:10px">${staff.map((s,i)=>`<span class="chip">${esc(s)} <button class="tiny ghost" onclick="removeStaff(${i})" aria-label="Remove ${esc(s)}">×</button></span>`).join('')}</div>
+   <label for="staffName">Add staff name</label><div class="row"><input id="staffName" placeholder="e.g. Joyce"><button onclick="addStaff()">Add</button></div>
+ </div>
+ <h3 class="section-title">Monthly data</h3>
+ <div class="card"><div class="strong">Update monthly</div><div class="install">Keep adding leads. Then choose the month in Analysis. The app recalculates automatically. Export a backup at the end of every month.</div></div>
+ <div class="card"><div class="strong">Same-category benchmark data</div><p class="muted medium">Edit this when you have better market numbers.</p><textarea id="benchmarkJson" class="textarea-mono">${esc(btxt)}</textarea><div class="actions" style="margin-top:10px"><button onclick="saveBenchmarkEditor()">Save benchmark</button><button class="ghost" onclick="saveBenchmarksObj(DEFAULT_BENCHMARKS)">Reset</button></div></div>
+ <h3 class="section-title">App maintenance</h3>
+ <div class="card"><div class="strong">Force refresh latest version</div><p class="muted medium">Use this after replacing files on GitHub if iPhone still shows the old app.</p><button class="secondary full" onclick="forceRefreshApp()">Refresh latest app</button><div class="muted small" style="margin-top:8px">Version: ${APP_VERSION}</div></div>
+ <div class="card"><div class="strong">Backup / Restore</div><p class="muted medium">Your leads are stored on this browser/device. Export before big updates.</p><div class="actions"><button onclick="downloadBackup()">Export JSON</button><button class="ghost" onclick="document.getElementById('importFile').click()">Import JSON</button><button class="danger" onclick="resetDemo()">Reset demo</button></div><input id="importFile" type="file" accept="application/json" style="display:none" onchange="importBackup(event)"></div>`;
+}
+function addStaff(){ const v=document.getElementById('staffName').value.trim(); if(!v) return; staff=[...new Set([...staff,v])]; saveStaff(); }
+function removeStaff(i){ staff.splice(i,1); saveStaff(); }
+function saveBenchmarkEditor(){ try{saveBenchmarksObj(JSON.parse(document.getElementById('benchmarkJson').value)); showToast('Benchmark saved')}catch(e){showToast('JSON format error')} }
+async function forceRefreshApp(){
+ try{
+  if('serviceWorker' in navigator){ const regs=await navigator.serviceWorker.getRegistrations(); await Promise.all(regs.map(r=>r.unregister())); }
+  if('caches' in window){ const keys=await caches.keys(); await Promise.all(keys.map(k=>caches.delete(k))); }
+ }catch(e){}
+ location.reload(true);
+}
+function render(){ 
+ document.getElementById('headerSub').textContent = `${settings.businessName || 'LocalLead AI'} · ${settings.category}`;
+ if(active==='dashboard')renderDashboard();
+ if(active==='leads')renderLeads();
+ if(active==='templates')renderTemplates();
+ if(active==='report')renderReport();
+ if(active==='settings')renderSettings();
+}
+function openLeadForm(id=null, note=''){
+ const l=id?leads.find(x=>x.id===id):null;
+ document.getElementById('modalTitle').textContent=l?'Edit Lead':'Add Lead';
+ document.getElementById('modalBody').innerHTML=`
+ <div class="form-grid">
+  <label for="fName">Name</label><input id="fName" value="${esc(l?.name||'')}" placeholder="Customer name">
+  <label for="fPhone">Phone / Contact</label><input id="fPhone" value="${esc(l?.phone||'')}" placeholder="WhatsApp / IG handle">
+  <label for="fSource">Source</label><select id="fSource">${SOURCES.map(s=>`<option ${l?.source===s?'selected':''}>${s}</option>`).join('')}</select>
+  <label for="fInterest">Interest / Service</label><input id="fInterest" value="${esc(l?.interest||'')}" placeholder="e.g. trial class, booking, quotation">
+  <label for="fLevel">Level / Type</label><input id="fLevel" value="${esc(l?.levelOrType||'')}" placeholder="e.g. S2, gel nail, tyre change">
+  <label for="fTime">Preferred time</label><input id="fTime" value="${esc(l?.preferredTime||'')}" placeholder="e.g. Sat afternoon">
+  <label for="fStatus">Status</label><select id="fStatus">${STATUS.map(s=>`<option ${l?.status===s?'selected':''}>${s}</option>`).join('')}</select>
+  <label for="fFollow">Next follow-up</label><input id="fFollow" type="datetime-local" value="${esc(l?.nextFollowUp||addDays(1))}">
+  <label for="fStaff">Assigned to</label><select id="fStaff">${staff.map(s=>`<option ${l?.assignedTo===s?'selected':''}>${esc(s)}</option>`).join('')}</select>
+  <label for="fValue">Potential value HKD</label><input id="fValue" type="number" value="${esc(l?.valueHKD||1200)}">
+  <label for="fNotes">Notes</label><textarea id="fNotes" placeholder="Need, pain point, budget, next action">${esc(l?.notes||note||'')}</textarea>
+  <div class="actions" style="margin-top:12px"><button onclick="saveLead('${id||''}')">${l?'Save changes':'Add lead'}</button>${l?`<button class="danger" onclick="deleteLead('${l.id}')">Delete</button>`:''}<button class="ghost" onclick="closeModal()">Cancel</button></div>
+ </div>`;
+ document.getElementById('modal').classList.add('active');
+ setTimeout(()=>document.getElementById('fName')?.focus(),120);
+}
+function saveLead(id){
+ const obj={
+  id:id||uid(), createdAt:id?(leads.find(l=>l.id===id)?.createdAt||new Date().toISOString()):new Date().toISOString(),
+  name:document.getElementById('fName').value.trim()||'Unnamed',
+  phone:document.getElementById('fPhone').value.trim(),
+  source:document.getElementById('fSource').value,
+  interest:document.getElementById('fInterest').value.trim(),
+  levelOrType:document.getElementById('fLevel').value.trim(),
+  preferredTime:document.getElementById('fTime').value.trim(),
+  status:document.getElementById('fStatus').value,
+  nextFollowUp:document.getElementById('fFollow').value||addDays(1),
+  assignedTo:document.getElementById('fStaff').value,
+  valueHKD:Number(document.getElementById('fValue').value)||0,
+  notes:document.getElementById('fNotes').value.trim()
+ };
+ if(id){leads=leads.map(l=>l.id===id?obj:l)}else{leads.unshift(obj)}
+ closeModal(); save(); showToast(id?'Lead updated':'Lead added');
+}
+function viewLead(id){
+ const l=leads.find(x=>x.id===id); if(!l)return;
+ const msg=`你好 ${l.name}，想跟進返你關於「${l.interest}」嘅查詢。我哋可以幫你安排最合適嘅時間 / 方案。你今日方便確認嗎？`;
+ document.getElementById('modalTitle').textContent=l.name;
+ document.getElementById('modalBody').innerHTML=`
+  <div class="card"><div class="row between"><div><div class="strong">${esc(l.interest)}</div><div class="muted medium">${esc(l.phone)} · ${esc(l.source)}</div></div>${badge(l.status)}</div></div>
+  <table class="mini-table">
+   <tr><td>Level / Type</td><td>${esc(l.levelOrType||'-')}</td></tr>
+   <tr><td>Preferred time</td><td>${esc(l.preferredTime||'-')}</td></tr>
+   <tr><td>Assigned to</td><td>${esc(l.assignedTo||'-')}</td></tr>
+   <tr><td>Next follow-up</td><td>${fmt(l.nextFollowUp)}</td></tr>
+   <tr><td>Potential value</td><td>HK$${Number(l.valueHKD||0).toLocaleString()}</td></tr>
+  </table>
+  <h3 class="section-title">Notes</h3><div class="card muted medium">${esc(l.notes||'No notes')}</div>
+  <h3 class="section-title">Suggested reply</h3><div class="card report">${esc(msg)}</div>
+  <div class="actions"><button onclick='copyText(${JSON.stringify(msg)})'>Copy reply</button><button class="secondary" onclick="openLeadForm('${l.id}')">Edit</button><button class="ghost" onclick="closeModal()">Close</button></div>`;
+ document.getElementById('modal').classList.add('active');
+}
+function deleteLead(id){ if(confirm('Delete this lead?')){leads=leads.filter(l=>l.id!==id);closeModal();save();showToast('Deleted')} }
+function closeModal(){ document.getElementById('modal').classList.remove('active'); }
+function closeModalIfBackdrop(e){ if(e.target.id==='modal') closeModal(); }
+function downloadBackup(){
+ const data={version:APP_VERSION,exportedAt:new Date().toISOString(),settings,benchmarks,staff,leads};
+ const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+ const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`locallead-ai-backup-${new Date().toISOString().slice(0,10)}.json`; a.click();
+}
+function importBackup(e){
+ const file=e.target.files[0]; if(!file)return;
+ const reader=new FileReader();
+ reader.onload=()=>{ try{
+   const data=JSON.parse(reader.result);
+   if(Array.isArray(data.leads)) leads=data.leads;
+   if(data.settings) settings={...settings,...data.settings};
+   if(data.benchmarks) benchmarks=data.benchmarks;
+   if(Array.isArray(data.staff)) staff=data.staff;
+   localStorage.setItem(STORAGE_KEY,JSON.stringify(leads));
+   localStorage.setItem(SETTINGS_KEY,JSON.stringify(settings));
+   localStorage.setItem(BENCHMARK_KEY,JSON.stringify(benchmarks));
+   localStorage.setItem(STAFF_KEY,JSON.stringify(staff));
+   applyTheme(); render(); showToast('Imported');
+ }catch(err){showToast('Import failed')} };
+ reader.readAsText(file);
+}
+function resetDemo(){ if(confirm('Reset demo leads?')){leads=seed(); save();} }
+
+if('serviceWorker' in navigator){ navigator.serviceWorker.register('./service-worker.js').catch(()=>{}); }
+if(loggedIn()) unlockApp(); else renderLogin();
+</script>
+</body>
+</html>
